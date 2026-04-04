@@ -1,6 +1,6 @@
 if shared.ratfunLibrary then shared.ratfunLibrary:Unload() end
 local StartTime = shared.ratfunDebug and os.clock()
- 
+
 --// Initialization 
 local cloneref = cloneref or function(...) return ... end 
 local Services = setmetatable({}, {
@@ -10,7 +10,7 @@ local Services = setmetatable({}, {
             return Service
     end
 })
- 
+
 -- // Services
 local InputService = Services.UserInputService
 local TweenService = Services.TweenService
@@ -19,60 +19,60 @@ local HttpService = Services.HttpService
 local RunService = Services.RunService
 local CoreGui = Services.CoreGui
 local Players = Services.Players
- 
+
 -- // Variables
 local PreRender = RunService.PreRender
 local Mouse = cloneref(Players.LocalPlayer:GetMouse())
 local Options = {}
- 
+
 -- // ScreenGui
 local ScreenGui = Instance.new("ScreenGui", CoreGui.RobloxGui)
 ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Global
- 
+
 -- // Library
 local Library = {
     KeyCode = Enum.KeyCode.RightControl,
     Registry = {},
- 
+
     KeepInBounds = true,
- 
+
     TextColor = Color3.fromRGB(240, 240, 240),
-    MainColor = Color3.fromRGB(138, 28, 138),
+    MainColor = Color3.fromRGB(0, 0, 0),
     BackgroundColor = Color3.fromRGB(15, 15, 15),
     StrokeColor = Color3.fromRGB(50, 50, 50),
-    AccentColor = Color3.fromRGB(202, 47, 0),
+    AccentColor = Color3.fromRGB(138, 28, 138),
     DeselectedColor = Color3.fromRGB(180, 180, 180),
- 
+
     Black = Color3.new(0, 0, 0),
     Font = Font.new("rbxassetid://12187365364"), -- Inter
- 
+
     OpenedFrames = {},
     Keybinds = {},
     Connections = {},
     CopiedColor = nil,
- 
+
     ScreenGui = ScreenGui
 }
- 
+
 for _, Folder in next, {"rat.fun", "rat.fun/configs", "rat.fun/assets"} do
     if not isfolder(Folder) then
         makefolder(Folder)
     end
 end
- 
+
 local Assets = {
     ["rat.fun/assets/resize.png"] = "rbxassetid://102131664028298",
-    ["rat.fun/assets/logo.png"] = "rbxassetid://81943830283567",
+    ["rat.fun/assets/logo.png"] = "rbxassetid://3017873707",
     ["rat.fun/assets/transparency.png"] = "rbxassetid://105632977311596",
 }
- 
+
 function Library:Unload()
     for _, Connection in next, self.Connections do
         Connection:Disconnect()
     end
     self.ScreenGui:Destroy()
 end
- 
+
 -- // Helper functions
 local function New(ClassName, Properties)
     local Object = Instance.new(ClassName)
@@ -81,26 +81,26 @@ local function New(ClassName, Properties)
     end end
     return Object
 end
- 
+
 local function Connect(Signal, Callback)
     local Connection = Signal:Connect(Callback)
     table.insert(Library.Connections, Connection)
     return Connection
 end
- 
+
 local function ModifyBrightness(Color, Amount)
     local H, S, V = Color:ToHSV()
     local NewV = V + Amount
     if NewV < 0 or NewV > 1 then NewV = V - Amount end
     return Color3.fromHSV(H, S, NewV)
 end
- 
+
 Library.DarkerAccentColor = ModifyBrightness(Library.AccentColor, -0.185)
- 
+
 local function ColorText(Text, Color)
     return `<font color="#{Color:ToHex()}">{Text}</font>`
 end
- 
+
 local function GetIdx(Name)
     local Key = Name
     local Counter = 2
@@ -110,30 +110,30 @@ local function GetIdx(Name)
     end
     return Key
 end
- 
+
 local function AddToRegistry(Object, Properties)
     Library.Registry[Object] = Properties
 end
- 
+
 function Library:UpdateColors()
     Library.DarkerAccentColor = ModifyBrightness(Library.AccentColor, -0.185)
     local Text = `rat{ColorText(".fun", Library.AccentColor)}<font color="#{Library.DeselectedColor:ToHex()}"> v{Library.Version}</font>`
     Library.Title.Text = Text
     Library.Watermark.Text = Text
- 
+
     for Object, Properties in next, Library.Registry do
         for Property, Color in Properties do
             Object[Property] = Library[Color] or Color
         end
     end
 end
- 
+
 Connect(ScreenGui.DescendantRemoving, function(Object)
     if Library.Registry[Object] then
         Library.Registry[Object] = nil
     end
 end)
- 
+
 local function ApplyStroke(Object, Inner)
     local Stroke = New("UIStroke", {
         ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
@@ -142,14 +142,31 @@ local function ApplyStroke(Object, Inner)
             BackgroundTransparency = 1,
             Position = Inner and UDim2.fromOffset(1, 1) or UDim2.fromOffset(-1, -1),
             Size = Inner and UDim2.new(1, -2, 1, -2) or UDim2.new(1, 2, 1, 2),
-            ZIndex = (Object.ZIndex or 1) + 1,
+            ZIndex = Object.ZIndex + 1,local function ApplyStroke(Object, Inner)
+    -- Check if Object is valid before proceeding
+    if not Object then return end
+    
+    local Stroke = New("UIStroke", {
+        ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
+        Color = Inner and Library.AccentColor or Library.Black,
+        Parent = New("Frame", {
+            BackgroundTransparency = 1,
+            Position = Inner and UDim2.fromOffset(1, 1) or UDim2.fromOffset(-1, -1),
+            Size = Inner and UDim2.new(1, -2, 1, -2) or UDim2.new(1, 2, 1, 2),
+            ZIndex = Object.ZIndex + 1,
             Parent = Object
         })
     })
     AddToRegistry(Stroke, {Color = Inner and "AccentColor" or "Black"})
     return Stroke
 end
- 
+            Parent = Object
+        })
+    })
+    AddToRegistry(Stroke, {Color = Inner and "AccentColor" or "Black"})
+    return Stroke
+end
+
 local function ApplyPadding(Object, Paddings)
     return New("UIPadding", {
         PaddingLeft = UDim.new(0, Paddings.L or 0),
@@ -159,7 +176,7 @@ local function ApplyPadding(Object, Paddings)
         Parent = Object
     })
 end
- 
+
 local function AddGradient(Object, Color, Transparency)
     Transparency = Transparency or 0
     return New("UIGradient", {
@@ -168,7 +185,7 @@ local function AddGradient(Object, Color, Transparency)
         Parent = Object
     })
 end
- 
+
 local function AddLine(Object)
     local Line = New("Frame", {
         Position = UDim2.new(0, 0, 1, -1),
@@ -181,21 +198,21 @@ local function AddLine(Object)
     AddToRegistry(Line, {BackgroundColor3 = "StrokeColor"})
     return Line
 end
- 
+
 local function IsMouseOverFrame(Frame)
     local Pos, Size = Frame.AbsolutePosition, Frame.AbsoluteSize
     return Mouse.X >= Pos.X and Mouse.X <= Pos.X + Size.X
     and Mouse.Y >= Pos.Y and Mouse.Y <= Pos.Y + Size.Y
 end
- 
+
 local function IsMouseOverOpenedFrame()
     for Frame in next, Library.OpenedFrames do
         if IsMouseOverFrame(Frame) then return true end
     end
- 
+
     return false
 end
- 
+
 local Tooltip = New("TextLabel", {
     BackgroundColor3 = Library.MainColor,
     FontFace = Library.Font,
@@ -207,7 +224,7 @@ local Tooltip = New("TextLabel", {
     Parent = ScreenGui
 })
 AddToRegistry(Tooltip, {BackgroundColor3 = "MainColor", TextColor3 = "TextColor", BorderColor3 = "StrokeColor"})
- 
+
 local function AddTooltip(Object, Text)
     local IsHovering = false
     Object.MouseEnter:Connect(function()
@@ -227,7 +244,7 @@ local function AddTooltip(Object, Text)
         Tooltip.Visible = false
     end)
 end
- 
+
 local function MakeDraggable(Object, DependsOnObject, IsWindow)
     Object.InputBegan:Connect(function(Input)
         if Input.UserInputType == Enum.UserInputType.MouseButton1 and (not DependsOnObject or DependsOnObject.Visible) then
@@ -248,7 +265,7 @@ local function MakeDraggable(Object, DependsOnObject, IsWindow)
         end
     end)
 end
- 
+
 -- // UI objects
 local Notifications = New("Frame", {
     Position = UDim2.fromOffset(8, 8),
@@ -256,9 +273,9 @@ local Notifications = New("Frame", {
     BackgroundTransparency = 1,
     Parent = ScreenGui
 })
- 
+
 local NotifTweenInfo = TweenInfo.new(.2, Enum.EasingStyle.Exponential)
- 
+
 local WatermarkFrame = New("Frame", {
     BackgroundColor3 = Library.BackgroundColor,
     BorderColor3 = Library.StrokeColor,
@@ -268,7 +285,7 @@ local WatermarkFrame = New("Frame", {
     Parent = ScreenGui
 }) ApplyStroke(WatermarkFrame)
 AddToRegistry(WatermarkFrame, {BackgroundColor3 = "BackgroundColor", BorderColor3 = "StrokeColor"})
- 
+
 local WatermarkIcon = New("ImageLabel", {
     BackgroundTransparency = 1,
     Position = UDim2.fromOffset(5, 5),
@@ -279,7 +296,7 @@ local WatermarkIcon = New("ImageLabel", {
     Parent = WatermarkFrame
 })
 AddToRegistry(WatermarkIcon, {ImageColor3 = "AccentColor"})
- 
+
 local WatermarkTextFrame = New("Frame", {
     BackgroundColor3 = Library.BackgroundColor,
     BorderColor3 = Library.StrokeColor,
@@ -289,11 +306,11 @@ local WatermarkTextFrame = New("Frame", {
     Parent = WatermarkFrame
 })
 AddToRegistry(WatermarkTextFrame, {BackgroundColor3 = "BackgroundColor", BorderColor3 = "StrokeColor"})
- 
+
 local WatermarkGradient = AddGradient(WatermarkTextFrame, Color3.new(1, 1, 1), NumberSequence.new({NumberSequenceKeypoint.new(0, 0), NumberSequenceKeypoint.new(1, 1)}))
 local WatermarkTextFrameStrokeGradient = WatermarkGradient:Clone()
 WatermarkTextFrameStrokeGradient.Parent = ApplyStroke(WatermarkTextFrame)
- 
+
 local WatermarkText = New("TextLabel", {
     BackgroundTransparency = 1,
     Position = UDim2.fromOffset(8, 0),
@@ -309,7 +326,7 @@ local WatermarkText = New("TextLabel", {
     Parent = WatermarkTextFrame
 })
 AddToRegistry(WatermarkText, {TextColor3 = "TextColor"})
- 
+
 local IsWatermarkOnRightSide = false
 WatermarkFrame:GetPropertyChangedSignal("AbsolutePosition"):Connect(function()
     if WatermarkFrame.AbsolutePosition.X > ScreenGui.AbsoluteSize.X / 2 then
@@ -330,7 +347,7 @@ WatermarkFrame:GetPropertyChangedSignal("AbsolutePosition"):Connect(function()
         IsWatermarkOnRightSide = false
     end
 end)
- 
+
 local DropdownFrame = New("ScrollingFrame", {
     AutomaticCanvasSize = Enum.AutomaticSize.Y,
     ScrollBarThickness = 2,
@@ -343,7 +360,7 @@ local DropdownFrame = New("ScrollingFrame", {
     Parent = ScreenGui
 }) ApplyPadding(DropdownFrame, {L=6, R=8}); New("UIListLayout", {Parent = DropdownFrame})
 AddToRegistry(DropdownFrame, {BackgroundColor3 = "BackgroundColor", ScrollBarImageColor3 = "StrokeColor", BorderColor3 = "StrokeColor"})
- 
+
 local KeyContextMenu = New("Frame", {
     Size = UDim2.fromOffset(54, 61),
     BackgroundColor3 = Library.MainColor,
@@ -353,7 +370,7 @@ local KeyContextMenu = New("Frame", {
     Parent = ScreenGui
 }) ApplyPadding(KeyContextMenu, {B=1, L=6, R=8})
 AddToRegistry(KeyContextMenu, {BackgroundColor3 = "MainColor", BorderColor3 = "StrokeColor"})
- 
+
 local HoldButton = New("TextButton", {
     BackgroundTransparency = 1,
     Size = UDim2.new(1, 0, 0, 20),
@@ -365,17 +382,17 @@ local HoldButton = New("TextButton", {
     ZIndex = 3,
     Parent = KeyContextMenu
 })
- 
+
 local ToggleButton = HoldButton:Clone()
 ToggleButton.Position = UDim2.fromOffset(0, 20)
 ToggleButton.Text = "toggle"
 ToggleButton.Parent = KeyContextMenu
- 
+
 local AlwaysButton = HoldButton:Clone()
 AlwaysButton.Position = UDim2.fromOffset(0, 40)
 AlwaysButton.Text = "always"
 AlwaysButton.Parent = KeyContextMenu
- 
+
 local function UpdateContextButtons(Keybind)
     if not Keybind then return end
     for _, Button in next, {HoldButton, ToggleButton, AlwaysButton} do
@@ -384,7 +401,7 @@ local function UpdateContextButtons(Keybind)
         Library.Registry[Button].TextColor3 = IsSelected and "AccentColor" or "DeselectedColor"
     end
 end
- 
+
 for _, Button in next, {HoldButton, ToggleButton, AlwaysButton} do
     AddToRegistry(Button, {TextColor3 = "DeselectedColor"})
     Button.MouseEnter:Connect(function()
@@ -409,7 +426,7 @@ for _, Button in next, {HoldButton, ToggleButton, AlwaysButton} do
         end
     end)
 end
- 
+
 -- // Keybind window
 local KeybindWindow = New("Frame", {
     BackgroundColor3 = Library.BackgroundColor,
@@ -420,12 +437,12 @@ local KeybindWindow = New("Frame", {
     ZIndex = 3,
     Parent = ScreenGui
 }); ApplyStroke(KeybindWindow)
- 
+
 AddToRegistry(KeybindWindow, {
     BackgroundColor3 = "BackgroundColor",
     BorderColor3 = "StrokeColor"
 })
- 
+
 local KeybindTitle = New("TextLabel", {
     BackgroundColor3 = Library.MainColor,
     BorderSizePixel = 0,
@@ -438,15 +455,15 @@ local KeybindTitle = New("TextLabel", {
     ZIndex = 4,
     Parent = KeybindWindow
 }); local KeybindTitleLine = AddLine(KeybindTitle); ApplyPadding(KeybindTitle, {L=8})
- 
+
 KeybindTitleLine.Position = UDim2.new(0, -8, 1, -1)
 KeybindTitleLine.Size = UDim2.new(1, 8, 0, 1)
- 
+
 AddToRegistry(KeybindTitle, {
     BackgroundColor3 = "MainColor",
     TextColor3 = "TextColor"
 })
- 
+
 local KeybindsFrame = New("Frame", {
     BackgroundTransparency = 1,
     Position = UDim2.fromOffset(0, 30),
@@ -457,9 +474,9 @@ local KeybindsFrame = New("Frame", {
     Padding = UDim.new(0, 4),
     Parent = KeybindsFrame
 })
- 
- 
- 
+
+
+
 local function GetTextWidth(Text, Size)
     local TextLabel = New("TextLabel", {
         FontFace = Library.Font,
@@ -471,7 +488,7 @@ local function GetTextWidth(Text, Size)
     TextLabel:Destroy()
     return Width
 end
- 
+
 local function UpdateKeybindWindow()
     -- TODO: rewrite
     for _, Child in next, KeybindsFrame:GetChildren() do
@@ -526,13 +543,13 @@ local function UpdateKeybindWindow()
         local IsActive = Data.IsActive
         local KeyText = Data.KeyText
         local IsDeselected = not IsActive
- 
+
         local NameText = Keybind.Name
         local ModeText = Keybind.Mode:lower()
         
         local RowWidth = 16 + GetTextWidth(NameText, 13) + 8 + MaxKeyWidth + 6 + GetTextWidth(ModeText, 13)
         if RowWidth > MaxWidth then MaxWidth = RowWidth end
- 
+
         local Label = New("Frame", {
             BackgroundTransparency = 1,
             Size = UDim2.new(1, 0, 0, 16),
@@ -603,7 +620,7 @@ local function UpdateKeybindWindow()
         KeybindWindow.Size = UDim2.fromOffset(MaxWidth, 30 + KeybindsFrame.AbsoluteSize.Y)
     end
 end
- 
+
 -- // Colorpicker Frame
 local ColorpickerFrame = New("Frame", {
     Size = UDim2.fromOffset(172, 200),
@@ -614,7 +631,7 @@ local ColorpickerFrame = New("Frame", {
     Parent = ScreenGui
 }) ApplyStroke(ColorpickerFrame)
 AddToRegistry(ColorpickerFrame, {BackgroundColor3 = "MainColor", BorderColor3 = "StrokeColor"})
- 
+
 local SaturationFrame = New("TextButton", {
     Position = UDim2.fromOffset(8, 8),
     AutoButtonColor = false,
@@ -625,19 +642,19 @@ local SaturationFrame = New("TextButton", {
     Text = "",
     Parent = ColorpickerFrame
 })
- 
+
 local SatFrameStroke = New("UIStroke", {
     Color = Library.StrokeColor,
     ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
     Parent = SaturationFrame
 })
- 
+
 local SatGradient = AddGradient(SaturationFrame, ColorSequence.new({
     ColorSequenceKeypoint.new(0, Color3.new(1, 0, 0)),
     ColorSequenceKeypoint.new(1, Color3.new(1, 1, 1))
 }))
 SatGradient.Name = "SatGradient"
- 
+
 local BlackColor = New("Frame", {
     BackgroundColor3 = Library.Black,
     Size = UDim2.fromScale(1, 1),
@@ -649,7 +666,7 @@ AddGradient(BlackColor, Library.Black, NumberSequence.new({
     NumberSequenceKeypoint.new(0, 1),
     NumberSequenceKeypoint.new(1, 0)
 })).Rotation = 90
- 
+
 local SaturationDragger = New("Frame", {
     BackgroundColor3 = Library.TextColor,
     AnchorPoint = Vector2.new(.5, .5),
@@ -660,7 +677,7 @@ local SaturationDragger = New("Frame", {
     Parent = SaturationFrame
 })
 AddToRegistry(SaturationDragger, {BackgroundColor3 = "TextColor"})
- 
+
 local HueSlider = New("TextButton", {
     Position = UDim2.fromOffset(8, 146),
     Size = UDim2.fromOffset(156, 20),
@@ -677,13 +694,13 @@ local HueSlider = New("TextButton", {
     end
     AddGradient(HueSlider, ColorSequence.new(SequenceTable))
 end
- 
+
 local HueSliderStroke = SatFrameStroke:Clone()
 HueSliderStroke.Parent = HueSlider
- 
+
 AddToRegistry(SatFrameStroke, {Color = "StrokeColor"})
 AddToRegistry(HueSliderStroke, {Color = "StrokeColor"})
- 
+
 local HueLine = New("Frame", {
     BackgroundColor3 = Library.TextColor,
     Size = UDim2.new(0, 1, 1, 0),
@@ -693,7 +710,7 @@ local HueLine = New("Frame", {
     Parent = HueSlider
 })
 AddToRegistry(HueLine, {BackgroundColor3 = "TextColor"})
- 
+
 local RTextBox = New("TextBox", {
     Position = UDim2.fromOffset(8, 174),
     Size = UDim2.fromOffset(47, 20),
@@ -706,23 +723,23 @@ local RTextBox = New("TextBox", {
     ZIndex = 4,
     Parent = ColorpickerFrame
 })
- 
+
 local GTextBox = RTextBox:Clone()
 GTextBox.Position = UDim2.fromOffset(63, 174)
 GTextBox.TextColor3 = Color3.fromRGB(150, 240, 150)
 GTextBox.PlaceholderText = "G"
 GTextBox.Parent = ColorpickerFrame
- 
+
 local BTextBox = RTextBox:Clone()
 BTextBox.Position = UDim2.fromOffset(117, 174)
 BTextBox.TextColor3 = Color3.fromRGB(150, 150, 240)
 BTextBox.PlaceholderText = "B"
 BTextBox.Parent = ColorpickerFrame
- 
+
 for _, TextBox in next, {RTextBox, GTextBox, BTextBox} do
     AddToRegistry(TextBox, {BackgroundColor3 = "BackgroundColor", BorderColor3 = "StrokeColor"})
 end
- 
+
 -- // Colorpicker context menu
 local ColorpickerContextMenu = New("Frame", {
     Size = UDim2.fromOffset(54, 41),
@@ -733,7 +750,7 @@ local ColorpickerContextMenu = New("Frame", {
     Parent = ScreenGui
 }) ApplyPadding(ColorpickerContextMenu, {B=1, L=6, R=8})
 AddToRegistry(ColorpickerContextMenu, {BackgroundColor3 = "MainColor", BorderColor3 = "StrokeColor"})
- 
+
 local CopyButton = New("TextButton", {
     BackgroundTransparency = 1,
     Size = UDim2.new(1, 0, 0, 20),
@@ -746,13 +763,13 @@ local CopyButton = New("TextButton", {
     Parent = ColorpickerContextMenu
 })
 AddToRegistry(CopyButton, {TextColor3 = "DeselectedColor"})
- 
+
 local PasteButton = CopyButton:Clone()
 PasteButton.Position = UDim2.fromOffset(0, 20)
 PasteButton.Text = "paste"
 PasteButton.Parent = ColorpickerContextMenu
 AddToRegistry(PasteButton, {TextColor3 = "DeselectedColor"})
- 
+
 for _, Button in {CopyButton, PasteButton} do
     Button.MouseEnter:Connect(function()
         Button.TextColor3 = Library.TextColor
@@ -763,7 +780,7 @@ for _, Button in {CopyButton, PasteButton} do
         Library.Registry[Button].TextColor3 = "DeselectedColor"
     end)
 end
- 
+
 local InputMap = {
     [Enum.KeyCode.Unknown] = "?",
     [Enum.UserInputType.MouseButton1] = "mb1",
@@ -785,7 +802,7 @@ local InputMap = {
     [Enum.KeyCode.Home] = "home",
     [Enum.KeyCode.End] = "end",
 }
- 
+
 local function GetInputName(Input)
     if Input.UserInputType == Enum.UserInputType.Keyboard then
         return InputMap[Input.KeyCode] or Input.KeyCode.Name:lower()
@@ -794,7 +811,7 @@ local function GetInputName(Input)
     end
     return nil
 end
- 
+
 Connect(InputService.InputBegan, function(Input, GameProcessed)
     if GameProcessed then return end
     local InputName = GetInputName(Input)
@@ -816,7 +833,7 @@ Connect(InputService.InputBegan, function(Input, GameProcessed)
         end
     end
 end)
- 
+
 Connect(InputService.InputEnded, function(Input)
     local InputName = GetInputName(Input)
     for _, Keybind in Library.Keybinds do
@@ -827,7 +844,7 @@ Connect(InputService.InputEnded, function(Input)
         end
     end
 end)
- 
+
 function Library:Window(Version)
     Library.Version = Version
     WindowFrame = New("Frame", {
@@ -839,10 +856,10 @@ function Library:Window(Version)
         Parent = ScreenGui
     }) ApplyStroke(WindowFrame); MakeDraggable(WindowFrame, nil, true)
     AddToRegistry(WindowFrame, {BackgroundColor3 = "BackgroundColor", BorderColor3 = "StrokeColor"})
- 
+
     MakeDraggable(KeybindWindow, WindowFrame)
     WindowFrame:GetPropertyChangedSignal("Visible"):Connect(UpdateKeybindWindow)
- 
+
     local ResizeButton = New("ImageButton", {
         AnchorPoint = Vector2.new(1, 1),
         Position = UDim2.fromScale(1, 1),
@@ -873,7 +890,7 @@ function Library:Window(Version)
             end
         end
     end)
- 
+
     Connect(InputService.InputBegan, function(Input)
         if Input.UserInputType == Enum.UserInputType.MouseButton1 then
             if Library.OpenedFrames[DropdownFrame] and not IsMouseOverFrame(Library.OpenedFrames[DropdownFrame].Button) and not IsMouseOverFrame(DropdownFrame) and Library.OpenedFrames[DropdownFrame].Open then
@@ -890,7 +907,7 @@ function Library:Window(Version)
             end
         end
     end)
- 
+
     local TitleFrame = New("Frame", {
         BackgroundColor3 = Library.MainColor,
         Size = UDim2.new(1, 0, 0, 30),
@@ -898,7 +915,7 @@ function Library:Window(Version)
         Parent = WindowFrame
     }) AddLine(TitleFrame)
     AddToRegistry(TitleFrame, {BackgroundColor3 = "MainColor"})
- 
+
     local Title = New("TextLabel", {
         BackgroundTransparency = 1,
         Position = UDim2.fromOffset(8, 0),
@@ -909,13 +926,13 @@ function Library:Window(Version)
         Text = `rat{ColorText(".fun", Library.AccentColor)}<font color="#{Library.DeselectedColor:ToHex()}"> v{Version}</font>`,
         Parent = TitleFrame
     }) Title.Size = UDim2.new(0, Title.TextBounds.X, 1, 0)
- 
+
     WatermarkText.Text = Title.Text
     Library.Title = Title
     Library.Watermark = WatermarkText
     MakeDraggable(WatermarkFrame, WindowFrame)
     AddToRegistry(Title, {TextColor3 = "TextColor"})
- 
+
     local TabsFrame = New("Frame", {
         BackgroundTransparency = 1,
         AnchorPoint = Vector2.new(1, 0),
@@ -928,17 +945,17 @@ function Library:Window(Version)
         SortOrder = Enum.SortOrder.LayoutOrder,
         Parent = TabsFrame
     })
- 
+
     local TabComponentHolder = New("Frame", {
         BackgroundTransparency = 1,
         Size = UDim2.new(1, 0, 1, -30),
         Position = UDim2.fromOffset(0, 30),
         Parent = WindowFrame
     })
- 
+
     local WindowFunctions = {}
     local SelectedTab = nil
- 
+
     local function SelectTab(TabButton)
         if SelectedTab then
             SelectedTab.TextColor3 = Library.DeselectedColor
@@ -950,7 +967,7 @@ function Library:Window(Version)
         TabComponentHolder[TabButton.Name].Visible = true
         SelectedTab = TabButton
     end
- 
+
     function WindowFunctions:Tab(Name)
         local TabButton = New("TextButton", {
             Name = Name,
@@ -966,7 +983,7 @@ function Library:Window(Version)
         TabButton.MouseEnter:Connect(function() if SelectedTab ~= TabButton then TabButton.TextColor3 = Library.TextColor; Library.Registry[TabButton].TextColor3 = "TextColor" end end)
         TabButton.MouseLeave:Connect(function() if SelectedTab ~= TabButton then TabButton.TextColor3 = Library.DeselectedColor; Library.Registry[TabButton].TextColor3 = "DeselectedColor" end end)
         TabButton.MouseButton1Down:Connect(function() SelectTab(TabButton) end)
- 
+
         local TabComponents = New("ScrollingFrame", {
             Name = Name,
             BackgroundTransparency = 1,
@@ -977,17 +994,17 @@ function Library:Window(Version)
             Visible = false,
             Parent = TabComponentHolder
         }) ApplyPadding(TabComponents, {L=8, R=8, B=8, T=8})
- 
+
         local LeftSide = New("Frame", {BackgroundTransparency = 1, AutomaticSize = Enum.AutomaticSize.Y, Size = UDim2.new(0.5, -13), Parent = TabComponents}) New("UIListLayout", {Padding = UDim.new(0, 10), Parent = LeftSide})
         local RightSide = LeftSide:Clone() RightSide.Position = UDim2.new(0.5, 5, 0, 0) RightSide.Parent = TabComponents
         if not SelectedTab then SelectTab(TabButton) end
- 
+
         local Tab = {
             Name = Name
         }
- 
+
         local SectionCount = 0
- 
+
         function Tab:Section(Name)
             SectionCount += 1
             local SectionFrame = New("Frame", {
@@ -1019,11 +1036,11 @@ function Library:Window(Version)
                 Size = UDim2.new(1, 0, 0, 30),
                 Parent = SectionFrame
             }) ApplyPadding(SectionComponents, {L=8, R=8, B=8, T=8}); New("UIListLayout", {Padding = UDim.new(0, 8), SortOrder = Enum.SortOrder.LayoutOrder, Parent = SectionComponents})
- 
+
             local Section = {
                 Name = Name
             }
- 
+
             function Section:Label(Text)
                 local TextLabel = New("TextLabel", {
                     AutomaticSize = Enum.AutomaticSize.Y,
@@ -1039,7 +1056,7 @@ function Library:Window(Version)
                     Parent = SectionComponents
                 })
                 AddToRegistry(TextLabel, {TextColor3 = "TextColor"})
- 
+
                 local Label = {
                     Section = Section,
                 }
@@ -1047,7 +1064,7 @@ function Library:Window(Version)
                 function Label:Tooltip(Text) AddTooltip(TextLabel, Text) end
                 return Label
             end
- 
+
             function Section:Button(Name, Callback)
                 local ButtonFrame = New("TextButton", {
                     BackgroundColor3 = Library.BackgroundColor,
@@ -1072,7 +1089,7 @@ function Library:Window(Version)
                 function Button:Tooltip(Text) AddTooltip(ButtonFrame, Text) end
                 return Button
             end
- 
+
             function Section:Toggle(Name, Callback, Default)
                 local ToggleState = Default or false
                 local ToggleButton = New("TextButton", {
@@ -1113,7 +1130,7 @@ function Library:Window(Version)
                 Options[GetIdx(Name)] = Toggle
                 return Toggle
             end
- 
+
             function Section:Slider(Info)
                 Info.Min = Info.Min or 0
                 Info.Default = Info.Default or Info.Min
@@ -1122,7 +1139,7 @@ function Library:Window(Version)
                 local Str = tostring(Info.Increment)
                 local DecimalPos = Str:find("%.")
                 DecimalPlaces = not DecimalPos and 0 or #Str - DecimalPos
- 
+
                 local SliderLabel = New("TextLabel", {
                     BackgroundTransparency = 1,
                     Size = UDim2.new(1, 0, 0, 40),
@@ -1205,7 +1222,7 @@ function Library:Window(Version)
                 Options[GetIdx(Info.Name)] = Slider
                 return Slider
             end
- 
+
             function Section:Dropdown(Info)
                 Info.Default = Info.Default or ""
                 Info.Multi = type(Info.Default) == "table"
@@ -1329,7 +1346,7 @@ function Library:Window(Version)
                 Options[GetIdx(Info.Name)] = Dropdown
                 return Dropdown
             end
- 
+
             function Section:Keybind(Info)
                 Info.Default = Info.Default or Enum.KeyCode.Unknown
                 Info.Mode = Info.Mode or "Toggle"
@@ -1399,13 +1416,13 @@ function Library:Window(Version)
                 KeybindButton.MouseButton2Down:Connect(function() Keybind:Show() end)
                 if Info.Mode == "Always" then Keybind.Active = true; Keybind.Callback(true) end
                 Keybind:SetValue(Keybind.Value)
- 
+
                 table.insert(Library.Keybinds, Keybind)
                 UpdateKeybindWindow()
                 Options[GetIdx(Info.Name)] = Keybind
                 return Keybind
             end
- 
+
             function Section:Input(Info)
                 Info.Placeholder = Info.Placeholder or "type something..."
                 Info.Default = Info.Default or ""
@@ -1452,7 +1469,7 @@ function Library:Window(Version)
                 Options[GetIdx(Info.Name)] = Input
                 return Input
             end
- 
+
             function Section:Colorpicker(Info)
                 Info.Default = Info.Default or Color3.fromRGB(255, 0, 0)
                 
@@ -1467,7 +1484,7 @@ function Library:Window(Version)
                     Parent = SectionComponents
                 })
                 AddToRegistry(ColorpickerLabel, {TextColor3 = "TextColor"})
- 
+
                 local ColorButton = New("TextButton", {
                     AnchorPoint = Vector2.new(1, 0),
                     Position = UDim2.fromScale(1, 0),
@@ -1479,7 +1496,7 @@ function Library:Window(Version)
                     Parent = ColorpickerLabel
                 })
                 AddToRegistry(ColorButton, {BorderColor3 = "StrokeColor"})
- 
+
                 local Colorpicker = {
                     Value = Info.Default,
                     Hue = 0,
@@ -1493,19 +1510,19 @@ function Library:Window(Version)
                     ContextMenuOpen = false,
                     ContextConnects = {}
                 }
- 
+
                 function Colorpicker:Tooltip(Text) AddTooltip(ColorButton, Text) end
- 
+
                 local function UpdateColor()
                     local NewColor = Color3.fromHSV(Colorpicker.Hue, Colorpicker.Sat, Colorpicker.Vib)
                     local DidValueChange = NewColor ~= Colorpicker.Value
- 
+
                     Colorpicker.Value = NewColor
                     ColorButton.BackgroundColor3 = NewColor
- 
+
                     if Library.OpenedFrames[ColorpickerFrame] == Colorpicker then
                         HueLine.Position = UDim2.fromScale(Colorpicker.Hue, 0)
- 
+
                         local Gradient = SaturationFrame:FindFirstChild("SatGradient")
                         if Gradient then
                             Gradient.Color = ColorSequence.new({
@@ -1513,25 +1530,25 @@ function Library:Window(Version)
                                 ColorSequenceKeypoint.new(1, Color3.new(1, 1, 1))
                             })
                         end
- 
+
                         SaturationDragger.Position = UDim2.fromScale(1 - Colorpicker.Sat, 1 - Colorpicker.Vib)
- 
+
                         if not RTextBox:IsFocused() then RTextBox.Text = tostring(math.floor(NewColor.R * 255)) end
                         if not GTextBox:IsFocused() then GTextBox.Text = tostring(math.floor(NewColor.G * 255)) end
                         if not BTextBox:IsFocused() then BTextBox.Text = tostring(math.floor(NewColor.B * 255)) end
                     end
- 
+
                     if DidValueChange then
                         Colorpicker.Callback(NewColor)
                     end
                 end
- 
+
                 function Colorpicker:SetValue(Color)
                     local H, S, V = Color:ToHSV()
                     Colorpicker.Hue, Colorpicker.Sat, Colorpicker.Vib = H, S, V
                     UpdateColor()
                 end
- 
+
                 function Colorpicker:Hide()
                     Library.OpenedFrames[ColorpickerFrame] = nil
                     ColorpickerFrame.Visible = false
@@ -1540,7 +1557,7 @@ function Library:Window(Version)
                     end
                     Colorpicker.ActiveConnections = {}
                 end
- 
+
                 function Colorpicker:Show()
                     if Library.OpenedFrames[ColorpickerFrame] then
                         Library.OpenedFrames[ColorpickerFrame]:Hide()
@@ -1556,9 +1573,9 @@ function Library:Window(Version)
                     RTextBox.Text = tostring(math.round(Colorpicker.Value.R * 255))
                     GTextBox.Text = tostring(math.round(Colorpicker.Value.G * 255))
                     BTextBox.Text = tostring(math.round(Colorpicker.Value.B * 255))
- 
+
                     UpdateColor()
- 
+
                     table.insert(Colorpicker.ActiveConnections, SaturationFrame.InputBegan:Connect(function(Input)
                         if Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch then
                             while InputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton1) do
@@ -1573,7 +1590,7 @@ function Library:Window(Version)
                             end
                         end
                     end))
- 
+
                     table.insert(Colorpicker.ActiveConnections, HueSlider.InputBegan:Connect(function(Input)
                         if Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch then
                             while InputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton1) do
@@ -1584,12 +1601,12 @@ function Library:Window(Version)
                             end
                         end
                     end))
- 
+
                     local function UpdateRGB()
                         local R, G, B = math.clamp(tonumber(RTextBox.Text) or 0, 0, 255), math.clamp(tonumber(GTextBox.Text) or 0, 0, 255), math.clamp(tonumber(BTextBox.Text) or 0, 0, 255)
                         Colorpicker:SetValue(Color3.fromRGB(R, G, B))
                     end
- 
+
                     table.insert(Colorpicker.ActiveConnections, RTextBox.FocusLost:Connect(UpdateRGB))
                     table.insert(Colorpicker.ActiveConnections, GTextBox.FocusLost:Connect(UpdateRGB))
                     table.insert(Colorpicker.ActiveConnections, BTextBox.FocusLost:Connect(UpdateRGB))
@@ -1600,18 +1617,18 @@ function Library:Window(Version)
                     ColorpickerContextMenu.Position = UDim2.fromOffset(Mouse.X + 8, Mouse.Y + 8)
                     ColorpickerContextMenu.Visible = true
                     Library.OpenedFrames[ColorpickerContextMenu] = Colorpicker
- 
+
                     if Colorpicker.ContextConnects then
                         for _, v in pairs(Colorpicker.ContextConnects) do v:Disconnect() end
                     end
                     Colorpicker.ContextConnects = {}
- 
+
                     table.insert(Colorpicker.ContextConnects, CopyButton.MouseButton1Down:Connect(function()
                         Library.CopiedColor = Colorpicker.Value
                         Colorpicker:HideContextMenu()
                         Library:Notify("Color copied", "Success")
                     end))
- 
+
                     table.insert(Colorpicker.ContextConnects, PasteButton.MouseButton1Down:Connect(function()
                         if Library.CopiedColor then
                             Colorpicker:SetValue(Library.CopiedColor)
@@ -1621,7 +1638,7 @@ function Library:Window(Version)
                         Colorpicker:HideContextMenu()
                     end))
                 end
- 
+
                 function Colorpicker:HideContextMenu()
                     Colorpicker.ContextMenuOpen = false
                     ColorpickerContextMenu.Visible = false
@@ -1631,7 +1648,7 @@ function Library:Window(Version)
                         Colorpicker.ContextConnects = {}
                     end
                 end
- 
+
                 local H, S, V = Info.Default:ToHSV()
                 Colorpicker.Hue, Colorpicker.Sat, Colorpicker.Vib = H, S, V
                 
@@ -1650,20 +1667,20 @@ function Library:Window(Version)
                         Colorpicker:ShowContextMenu()
                     end
                 end)
- 
+
                 Colorpicker:SetValue(Colorpicker.Value)
                 
                 Options[GetIdx(Info.Name)] = Colorpicker
                 return Colorpicker
             end
- 
+
             return Section
         end
         return Tab
     end
     return WindowFunctions
 end
- 
+
 function Library:Notify(Text, Type, Duration)
     Duration = Duration or 5
     local Idx = #Notifications:GetChildren() + 1
@@ -1689,7 +1706,7 @@ function Library:Notify(Text, Type, Duration)
         Tween.Completed:Once(function() Notification:Destroy() end)
     end)
 end
- 
+
 function Library:ConfigManager(Window)
     local SettingsTab = Window:Tab("settings")
     local UISection = SettingsTab:Section("interface")
@@ -1713,7 +1730,7 @@ function Library:ConfigManager(Window)
         end
         return #Names > 0 and Names or {"None"}
     end
- 
+
     local function GetAutoloadName() return isfile(AutoloadPath) and readfile(AutoloadPath) or "none" end
     local function SaveConfig(Name)
         if not Name or Name == "" or Name == "None" then Library:Notify("Invalid config name", "Error") return end
@@ -1732,7 +1749,7 @@ function Library:ConfigManager(Window)
         writefile(`{ConfigFolder}/{Name}.json`, HttpService:JSONEncode(Data))
         Library:Notify(`saved config: {Name}`, "Success")
     end
- 
+
     local function LoadConfig(Name)
         local Path = `{ConfigFolder}/{Name}.json`
         if not isfile(Path) then Library:Notify("Config file not found", "Error") return end
@@ -1751,12 +1768,12 @@ function Library:ConfigManager(Window)
         WindowFrame.Size = UDim2.fromOffset(Decoded["WindowSize"][1], Decoded["WindowSize"][2])
         Library:Notify(`Config '{Name}' loaded`, "Success")
     end
- 
+
     local function DeleteConfig(Name)
         local Path = `{ConfigFolder}/{Name}.json`
         if isfile(Path) then delfile(Path); Library:Notify(`Config '{Name}' deleted`, "Success") end
     end
- 
+
     local ConfigDropdown = ConfigSection:Dropdown({
         Name = "configs", Values = GetConfigList(), Default = "None",
         Callback = function(Val) SelectedConfig = Val end
@@ -1789,7 +1806,7 @@ function Library:ConfigManager(Window)
             Library:Notify(`Set '{SelectedConfig}' to autoload`, "Success")
         else Library:Notify("Select a config first", "Error") end
     end)
- 
+
     local WindowKeybind = UISection:Keybind{
         Name = "window keybind", Default = Library.KeyCode, Mode = "Toggle",
 		ShowInKeybindWindow = false,
@@ -1802,7 +1819,7 @@ function Library:ConfigManager(Window)
     WindowKeybind.Active = true
     UISection:Toggle("keep window inbounds", function(Value) Library.KeepInBounds = Value end, Library.KeepInBounds)
     UISection:Toggle("watermark", function(Value) WatermarkFrame.Visible = Value end, true)
- 
+
 	UISection:Dropdown({
 		Name = "show keybinds when",
 		Values = {"active", "all", "hide"},
@@ -1812,7 +1829,7 @@ function Library:ConfigManager(Window)
 			UpdateKeybindWindow()
 		end
 	})
- 
+
     ColorSection:Colorpicker{
         Name = "accent color",
         Default = Library.AccentColor,
@@ -1821,7 +1838,7 @@ function Library:ConfigManager(Window)
             Library:UpdateColors()
         end
     }
- 
+
     ColorSection:Colorpicker{
         Name = "main color",
         Default = Library.MainColor,
@@ -1830,7 +1847,7 @@ function Library:ConfigManager(Window)
             Library:UpdateColors()
         end
     }
- 
+
     ColorSection:Colorpicker{
         Name = "background color",
         Default = Library.BackgroundColor,
@@ -1839,7 +1856,7 @@ function Library:ConfigManager(Window)
             Library:UpdateColors()
         end
     }
- 
+
     ColorSection:Colorpicker{
         Name = "outline color",
         Default = Library.StrokeColor,
@@ -1848,7 +1865,7 @@ function Library:ConfigManager(Window)
             Library:UpdateColors()
         end
     }
- 
+
     ColorSection:Colorpicker{
         Name = "text color",
         Default = Library.TextColor,
@@ -1857,7 +1874,7 @@ function Library:ConfigManager(Window)
             Library:UpdateColors()
         end
     }
- 
+
     ColorSection:Colorpicker{
         Name = "deselected color",
         Default = Library.DeselectedColor,
@@ -1866,15 +1883,15 @@ function Library:ConfigManager(Window)
             Library:UpdateColors()
         end
     }
- 
- 
+
+
     if isfile(AutoloadPath) then
         local AutoName = readfile(AutoloadPath)
         if isfile(`{ConfigFolder}/{AutoName}.json`) then task.delay(0.1, function() LoadConfig(AutoName); ConfigDropdown:SetValue(AutoName) end) end
     end
     
 end
- 
+
 if shared.ratfunDebug then Library:Notify(string.format("Loaded in %.2f seconds!", os.clock() - StartTime), "Success") end
 shared.ratfunLibrary = Library
 return Library
