@@ -37,10 +37,10 @@ local Library = {
     KeepInBounds = true,
 
     TextColor = Color3.fromRGB(240, 240, 240),
-    MainColor = Color3.fromRGB(0, 0, 0),           
+    MainColor = Color3.fromRGB(0, 0, 0),
     BackgroundColor = Color3.fromRGB(15, 15, 15),
     StrokeColor = Color3.fromRGB(50, 50, 50),
-    AccentColor = Color3.fromRGB(138, 28, 138),   
+    AccentColor = Color3.fromRGB(138, 28, 138),
     DeselectedColor = Color3.fromRGB(180, 180, 180),
 
     Black = Color3.new(0, 0, 0),
@@ -62,7 +62,7 @@ end
 
 local Assets = {
     ["rat.fun/assets/resize.png"] = "rbxassetid://102131664028298",
-    ["rat.fun/assets/logo.png"] = "rbxassetid://3017873707",
+    ["rat.fun/assets/logo.png"] = "rbxassetid://81943830283567",
     ["rat.fun/assets/transparency.png"] = "rbxassetid://105632977311596",
 }
 
@@ -75,14 +75,16 @@ end
 
 -- // Helper functions
 local function New(ClassName, Properties)
-    local Object = Instance.new(ClassName)
+    local ok, Object = pcall(Instance.new, ClassName)
+    if not ok then return nil end
     if Properties then for Property, Value in next, Properties do
-        Object[Property] = Value
+        pcall(function() Object[Property] = Value end)
     end end
     return Object
 end
 
 local function Connect(Signal, Callback)
+    if not Signal then return end
     local Connection = Signal:Connect(Callback)
     table.insert(Library.Connections, Connection)
     return Connection
@@ -118,12 +120,16 @@ end
 function Library:UpdateColors()
     Library.DarkerAccentColor = ModifyBrightness(Library.AccentColor, -0.185)
     local Text = `rat{ColorText(".fun", Library.AccentColor)}<font color="#{Library.DeselectedColor:ToHex()}"> v{Library.Version}</font>`
-    Library.Title.Text = Text
-    Library.Watermark.Text = Text
+    if Library.Title then Library.Title.Text = Text end
+    if Library.Watermark then Library.Watermark.Text = Text end
 
     for Object, Properties in next, Library.Registry do
-        for Property, Color in Properties do
-            Object[Property] = Library[Color] or Color
+        if Object and Properties then
+            for Property, Color in Properties do
+                local ok, err = pcall(function()
+                    Object[Property] = Library[Color] or Color
+                end)
+            end
         end
     end
 end
@@ -135,17 +141,7 @@ Connect(ScreenGui.DescendantRemoving, function(Object)
 end)
 
 local function ApplyStroke(Object, Inner)
-    local Stroke = New("UIStroke", {
-        ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
-        Color = Inner and Library.AccentColor or Library.Black,
-        Parent = New("Frame", {
-            BackgroundTransparency = 1,
-            Position = Inner and UDim2.fromOffset(1, 1) or UDim2.fromOffset(-1, -1),
-            Size = Inner and UDim2.new(1, -2, 1, -2) or UDim2.new(1, 2, 1, 2),
-            ZIndex = Object.ZIndex + 1,local function ApplyStroke(Object, Inner)
-    -- Check if Object is valid before proceeding
     if not Object then return end
-    
     local Stroke = New("UIStroke", {
         ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
         Color = Inner and Library.AccentColor or Library.Black,
@@ -153,13 +149,7 @@ local function ApplyStroke(Object, Inner)
             BackgroundTransparency = 1,
             Position = Inner and UDim2.fromOffset(1, 1) or UDim2.fromOffset(-1, -1),
             Size = Inner and UDim2.new(1, -2, 1, -2) or UDim2.new(1, 2, 1, 2),
-            ZIndex = Object.ZIndex + 1,
-            Parent = Object
-        })
-    })
-    AddToRegistry(Stroke, {Color = Inner and "AccentColor" or "Black"})
-    return Stroke
-end
+            ZIndex = (Object.ZIndex or 1) + 1,
             Parent = Object
         })
     })
@@ -286,16 +276,7 @@ local WatermarkFrame = New("Frame", {
 }) ApplyStroke(WatermarkFrame)
 AddToRegistry(WatermarkFrame, {BackgroundColor3 = "BackgroundColor", BorderColor3 = "StrokeColor"})
 
-local WatermarkIcon = New("ImageLabel", {
-    BackgroundTransparency = 1,
-    Position = UDim2.fromOffset(5, 5),
-    Size = UDim2.fromOffset(20, 20),
-    Image = Assets["rat.fun/assets/logo.png"] or "",
-    ImageColor3 = Library.AccentColor,
-    ZIndex = 7,
-    Parent = WatermarkFrame
-})
-AddToRegistry(WatermarkIcon, {ImageColor3 = "AccentColor"})
+-- Watermark logo removed
 
 local WatermarkTextFrame = New("Frame", {
     BackgroundColor3 = Library.BackgroundColor,
