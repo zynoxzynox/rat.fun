@@ -142,7 +142,24 @@ local function ApplyStroke(Object, Inner)
             BackgroundTransparency = 1,
             Position = Inner and UDim2.fromOffset(1, 1) or UDim2.fromOffset(-1, -1),
             Size = Inner and UDim2.new(1, -2, 1, -2) or UDim2.new(1, 2, 1, 2),
+            ZIndex = Object.ZIndex + 1,local function ApplyStroke(Object, Inner)
+    -- Check if Object is valid before proceeding
+    if not Object then return end
+    
+    local Stroke = New("UIStroke", {
+        ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
+        Color = Inner and Library.AccentColor or Library.Black,
+        Parent = New("Frame", {
+            BackgroundTransparency = 1,
+            Position = Inner and UDim2.fromOffset(1, 1) or UDim2.fromOffset(-1, -1),
+            Size = Inner and UDim2.new(1, -2, 1, -2) or UDim2.new(1, 2, 1, 2),
             ZIndex = Object.ZIndex + 1,
+            Parent = Object
+        })
+    })
+    AddToRegistry(Stroke, {Color = Inner and "AccentColor" or "Black"})
+    return Stroke
+end
             Parent = Object
         })
     })
