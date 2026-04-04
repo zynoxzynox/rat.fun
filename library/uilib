@@ -62,7 +62,7 @@ end
 
 local Assets = {
     ["rat.fun/assets/resize.png"] = "rbxassetid://102131664028298",
-    ["rat.fun/assets/logo.png"] = "rbxassetid://81943830283567",
+    ["rat.fun/assets/logo.png"] = "rbxassetid://3017873707",
     ["rat.fun/assets/transparency.png"] = "rbxassetid://105632977311596",
 }
 
