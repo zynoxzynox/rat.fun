@@ -37,10 +37,10 @@ local Library = {
     KeepInBounds = true,
 
     TextColor = Color3.fromRGB(240, 240, 240),
-    MainColor = Color3.fromRGB(138, 28, 138),
+    MainColor = Color3.fromRGB(0, 0, 0),          
     BackgroundColor = Color3.fromRGB(15, 15, 15),
     StrokeColor = Color3.fromRGB(50, 50, 50),
-    AccentColor = Color3.fromRGB(202, 47, 0),
+    AccentColor = Color3.fromRGB(138, 28, 138),    
     DeselectedColor = Color3.fromRGB(180, 180, 180),
 
     Black = Color3.new(0, 0, 0),
@@ -62,7 +62,6 @@ end
 
 local Assets = {
     ["rat.fun/assets/resize.png"] = "rbxassetid://102131664028298",
-    ["rat.fun/assets/logo.png"] = "rbxassetid://81943830283567",
     ["rat.fun/assets/transparency.png"] = "rbxassetid://105632977311596",
 }
 
@@ -268,17 +267,6 @@ local WatermarkFrame = New("Frame", {
     Parent = ScreenGui
 }) ApplyStroke(WatermarkFrame)
 AddToRegistry(WatermarkFrame, {BackgroundColor3 = "BackgroundColor", BorderColor3 = "StrokeColor"})
-
-local WatermarkIcon = New("ImageLabel", {
-    BackgroundTransparency = 1,
-    Position = UDim2.fromOffset(5, 5),
-    Size = UDim2.fromOffset(20, 20),
-    Image = Assets["rat.fun/assets/logo.png"] or "",
-    ImageColor3 = Library.AccentColor,
-    ZIndex = 7,
-    Parent = WatermarkFrame
-})
-AddToRegistry(WatermarkIcon, {ImageColor3 = "AccentColor"})
 
 local WatermarkTextFrame = New("Frame", {
     BackgroundColor3 = Library.BackgroundColor,
