@@ -142,7 +142,7 @@ local function ApplyStroke(Object, Inner)
             BackgroundTransparency = 1,
             Position = Inner and UDim2.fromOffset(1, 1) or UDim2.fromOffset(-1, -1),
             Size = Inner and UDim2.new(1, -2, 1, -2) or UDim2.new(1, 2, 1, 2),
-            ZIndex = Object.ZIndex + 1,
+            ZIndex = (Object.ZIndex or 1) + 1,
             Parent = Object
         })
     })
