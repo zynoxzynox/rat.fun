@@ -37,10 +37,10 @@ local Library = {
     KeepInBounds = true,
 
     TextColor = Color3.fromRGB(240, 240, 240),
-    MainColor = Color3.fromRGB(0, 0, 0),          
+    MainColor = Color3.fromRGB(138, 28, 138),
     BackgroundColor = Color3.fromRGB(15, 15, 15),
     StrokeColor = Color3.fromRGB(50, 50, 50),
-    AccentColor = Color3.fromRGB(138, 28, 138),    
+    AccentColor = Color3.fromRGB(202, 47, 0),
     DeselectedColor = Color3.fromRGB(180, 180, 180),
 
     Black = Color3.new(0, 0, 0),
@@ -62,6 +62,7 @@ end
 
 local Assets = {
     ["rat.fun/assets/resize.png"] = "rbxassetid://102131664028298",
+    ["rat.fun/assets/logo.png"] = "rbxassetid://81943830283567",
     ["rat.fun/assets/transparency.png"] = "rbxassetid://105632977311596",
 }
 
@@ -256,31 +257,58 @@ local Notifications = New("Frame", {
     Parent = ScreenGui
 })
 
-local NotifTweenInfo = TweenInfo.new(.2, Enum.EasingStyle.Exponential)-- Completely remove the watermark frame and just display the text
+local NotifTweenInfo = TweenInfo.new(.2, Enum.EasingStyle.Exponential)
+
+local WatermarkFrame = New("Frame", {
+    BackgroundColor3 = Library.BackgroundColor,
+    BorderColor3 = Library.StrokeColor,
+    Position = UDim2.fromOffset(8, 8),
+    Size = UDim2.fromOffset(30, 30),
+    ZIndex = 6,
+    Parent = ScreenGui
+}) ApplyStroke(WatermarkFrame)
+AddToRegistry(WatermarkFrame, {BackgroundColor3 = "BackgroundColor", BorderColor3 = "StrokeColor"})
+
+local WatermarkIcon = New("ImageLabel", {
+    BackgroundTransparency = 1,
+    Position = UDim2.fromOffset(5, 5),
+    Size = UDim2.fromOffset(20, 20),
+    Image = Assets["rat.fun/assets/logo.png"] or "",
+    ImageColor3 = Library.AccentColor,
+    ZIndex = 7,
+    Parent = WatermarkFrame
+})
+AddToRegistry(WatermarkIcon, {ImageColor3 = "AccentColor"})
+
+local WatermarkTextFrame = New("Frame", {
+    BackgroundColor3 = Library.BackgroundColor,
+    BorderColor3 = Library.StrokeColor,
+    Position = UDim2.new(1, 10, 0, 0),
+    Size = UDim2.fromOffset(150, 30),
+    ZIndex = 7,
+    Parent = WatermarkFrame
+})
+AddToRegistry(WatermarkTextFrame, {BackgroundColor3 = "BackgroundColor", BorderColor3 = "StrokeColor"})
+
+local WatermarkGradient = AddGradient(WatermarkTextFrame, Color3.new(1, 1, 1), NumberSequence.new({NumberSequenceKeypoint.new(0, 0), NumberSequenceKeypoint.new(1, 1)}))
+local WatermarkTextFrameStrokeGradient = WatermarkGradient:Clone()
+WatermarkTextFrameStrokeGradient.Parent = ApplyStroke(WatermarkTextFrame)
 
 local WatermarkText = New("TextLabel", {
     BackgroundTransparency = 1,
-    Position = UDim2.fromOffset(8, 8),
-    Size = UDim2.fromOffset(150, 30),
+    Position = UDim2.fromOffset(8, 0),
+    Size = UDim2.new(1, -16, 1, 0),
     TextXAlignment = Enum.TextXAlignment.Left,
     TextSize = 14,
     FontFace = Library.Font,
     TextColor3 = Library.TextColor,
     TextStrokeTransparency = .5,
     RichText = true,
-    Text = `rat{ColorText(".fun", Library.AccentColor)} v{Library.Version}`,
-    ZIndex = 6,
-    Parent = ScreenGui
+    Text = `rat.fun v{Library.Version}`,
+    ZIndex = 8,
+    Parent = WatermarkTextFrame
 })
-AddToRegistry(WatermarkText, {TextColor3 = "TextColor"})-- Completely remove the watermark frame and just display the text
-
-local WatermarkGradient = AddGradient(WatermarkTextFrame, Color3.new(1, 1, 1), NumberSequence.new({NumberSequenceKeypoint.new(0, 0), NumberSequenceKeypoint.new(1, 1)}))
-local WatermarkTextFrameStrokeGradient = WatermarkGradient:Clone()
-WatermarkTextFrameStrokeGradient.Parent = ApplyStroke(WatermarkTextFrame)
-
-local WatermarkGradient = AddGradient(WatermarkTextFrame, Color3.new(1, 1, 1), NumberSequence.new({NumberSequenceKeypoint.new(0, 0), NumberSequenceKeypoint.new(1, 1)}))
-local WatermarkTextFrameStrokeGradient = WatermarkGradient:Clone()
-WatermarkTextFrameStrokeGradient.Parent = ApplyStroke(WatermarkTextFrame)
+AddToRegistry(WatermarkText, {TextColor3 = "TextColor"})
 
 local IsWatermarkOnRightSide = false
 WatermarkFrame:GetPropertyChangedSignal("AbsolutePosition"):Connect(function()
