@@ -258,15 +258,6 @@ local Notifications = New("Frame", {
 
 local NotifTweenInfo = TweenInfo.new(.2, Enum.EasingStyle.Exponential)
 
-local WatermarkFrame = New("Frame", {
-    BackgroundColor3 = Library.BackgroundColor,
-    BorderColor3 = Library.StrokeColor,
-    Position = UDim2.fromOffset(8, 8),
-    Size = UDim2.fromOffset(30, 30),
-    ZIndex = 6,
-    Parent = ScreenGui
-}) ApplyStroke(WatermarkFrame)
-AddToRegistry(WatermarkFrame, {BackgroundColor3 = "BackgroundColor", BorderColor3 = "StrokeColor"})
 
 local WatermarkTextFrame = New("Frame", {
     BackgroundColor3 = Library.BackgroundColor,
