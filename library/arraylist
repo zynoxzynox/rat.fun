@@ -1,0 +1,70 @@
+-- NewNight ArrayList Module (Extracted & Refactored)
+local ArrayList = {
+    Entries = {},
+    Config = {
+        Visible = true,
+        Side = "Right", -- "Left" or "Right"
+        Font = Enum.Font.BuilderSansMedium,
+        TextSize = 14
+    }
+}
+
+local ScreenGui = Instance.new("ScreenGui", game:GetService("CoreGui"))
+ScreenGui.Name = "NewNight_ArrayList"
+
+local Container = Instance.new("Frame", ScreenGui)
+Container.Size = UDim2.new(0, 200, 1, 0)
+Container.Position = UDim2.new(1, -205, 0, 5)
+Container.BackgroundTransparency = 1
+
+local UIListLayout = Instance.new("UIListLayout", Container)
+UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
+UIListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Right
+UIListLayout.Padding = UDim.new(0, 2)
+
+-- Function: Add an item to the UI list
+function ArrayList.add(name, color)
+    if ArrayList.Entries[name] then return end
+    
+    local Entry = Instance.new("TextLabel")
+    Entry.Name = name
+    Entry.Text = " " .. name .. " "
+    Entry.TextColor3 = color or Color3.fromRGB(255, 255, 255)
+    Entry.Font = ArrayList.Config.Font
+    Entry.TextSize = ArrayList.Config.TextSize
+    Entry.BackgroundTransparency = 0.5
+    Entry.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+    Entry.BorderSizePixel = 0
+    Entry.AutomaticSize = Enum.AutomaticSize.XY
+    Entry.Parent = Container
+    
+    ArrayList.Entries[name] = Entry
+    ArrayList.Sort()
+    return Entry
+end
+
+-- Function: Remove an item from the UI list
+function ArrayList.Remove(name)
+    if ArrayList.Entries[name] then
+        ArrayList.Entries[name]:Destroy()
+        ArrayList.Entries[name] = nil
+    end
+end
+
+-- Function: Sort the list by text length (Classic NewNight/Vape style)
+function ArrayList.Sort()
+    local sorted = {}
+    for name, label in pairs(ArrayList.Entries) do
+        table.insert(sorted, label)
+    end
+    
+    table.sort(sorted, function(a, b)
+        return a.TextBounds.X > b.TextBounds.X
+    end)
+    
+    for i, label in ipairs(sorted) do
+        label.LayoutOrder = i
+    end
+end
+
+return ArrayList
