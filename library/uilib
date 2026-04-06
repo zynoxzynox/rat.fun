@@ -121,7 +121,6 @@ function Library:UpdateColors()
     Library.DarkerAccentColor = ModifyBrightness(Library.AccentColor, -0.185)
     local Text = `rat{ColorText(".fun", Library.AccentColor)}<font color="#{Library.DeselectedColor:ToHex()}"> v{Library.Version}</font>`
     if Library.Title then Library.Title.Text = Text end
-    if Library.Watermark then Library.Watermark.Text = Text end
 
     for Object, Properties in next, Library.Registry do
         if Object and Properties then
@@ -265,77 +264,6 @@ local Notifications = New("Frame", {
 })
 
 local NotifTweenInfo = TweenInfo.new(.2, Enum.EasingStyle.Exponential)
-
-local WatermarkFrame = New("Frame", {
-    BackgroundColor3 = Library.BackgroundColor,
-    BorderColor3 = Library.StrokeColor,
-    Position = UDim2.fromOffset(8, 8),
-    Size = UDim2.fromOffset(30, 30),
-    ZIndex = 6,
-    Parent = ScreenGui
-}) ApplyStroke(WatermarkFrame)
-AddToRegistry(WatermarkFrame, {BackgroundColor3 = "BackgroundColor", BorderColor3 = "StrokeColor"})
-
-local WatermarkIcon = New("ImageLabel", {
-    BackgroundTransparency = 1,
-    Position = UDim2.fromOffset(5, 5),
-    Size = UDim2.fromOffset(20, 20),
-    Image = Assets["rat.fun/assets/logo.png"] or "",
-    ZIndex = 7,
-    Parent = WatermarkFrame
-})
-AddToRegistry(WatermarkIcon, {ImageColor3 = "AccentColor"})
-
-local WatermarkTextFrame = New("Frame", {
-    BackgroundColor3 = Library.BackgroundColor,
-    BorderColor3 = Library.StrokeColor,
-    Position = UDim2.new(1, 10, 0, 0),
-    Size = UDim2.fromOffset(150, 30),
-    ZIndex = 7,
-    Parent = WatermarkFrame
-})
-AddToRegistry(WatermarkTextFrame, {BackgroundColor3 = "BackgroundColor", BorderColor3 = "StrokeColor"})
-
-local WatermarkGradient = AddGradient(WatermarkTextFrame, Color3.new(1, 1, 1), NumberSequence.new({NumberSequenceKeypoint.new(0, 0), NumberSequenceKeypoint.new(1, 1)}))
-local WatermarkTextFrameStrokeGradient = WatermarkGradient:Clone()
-WatermarkTextFrameStrokeGradient.Parent = ApplyStroke(WatermarkTextFrame)
-
-local WatermarkText = New("TextLabel", {
-    BackgroundTransparency = 1,
-    Position = UDim2.fromOffset(8, 0),
-    Size = UDim2.new(1, -16, 1, 0),
-    TextXAlignment = Enum.TextXAlignment.Left,
-    TextSize = 14,
-    FontFace = Library.Font,
-    TextColor3 = Library.TextColor,
-    TextStrokeTransparency = .5,
-    RichText = true,
-    Text = `rat.fun v{Library.Version}`,
-    ZIndex = 8,
-    Parent = WatermarkTextFrame
-})
-AddToRegistry(WatermarkText, {TextColor3 = "TextColor"})
-
-local IsWatermarkOnRightSide = false
-WatermarkFrame:GetPropertyChangedSignal("AbsolutePosition"):Connect(function()
-    if WatermarkFrame.AbsolutePosition.X > ScreenGui.AbsoluteSize.X / 2 then
-        if not IsWatermarkOnRightSide then
-            WatermarkTextFrame.Position = UDim2.fromOffset(-160, 0)
-            WatermarkGradient.Rotation = 180
-            WatermarkTextFrameStrokeGradient.Rotation = 180
-            WatermarkText.TextXAlignment = Enum.TextXAlignment.Right
-        end
-        IsWatermarkOnRightSide = true
-    else
-        if IsWatermarkOnRightSide then
-            WatermarkTextFrame.Position = UDim2.new(1, 10, 0, 0)
-            WatermarkGradient.Rotation = 0
-            WatermarkTextFrameStrokeGradient.Rotation = 0
-            WatermarkText.TextXAlignment = Enum.TextXAlignment.Left
-        end
-        IsWatermarkOnRightSide = false
-    end
-end)
 
 local DropdownFrame = New("ScrollingFrame", {
     AutomaticCanvasSize = Enum.AutomaticSize.Y,
@@ -915,12 +843,6 @@ function Library:Window(Version)
         Text = `rat{ColorText(".fun", Library.AccentColor)}<font color="#{Library.DeselectedColor:ToHex()}"> v{Version}</font>`,
         Parent = TitleFrame
     }) Title.Size = UDim2.new(0, Title.TextBounds.X, 1, 0)
-
-    WatermarkText.Text = Title.Text
-    Library.Title = Title
-    Library.Watermark = WatermarkText
-    MakeDraggable(WatermarkFrame, WindowFrame)
-    AddToRegistry(Title, {TextColor3 = "TextColor"})
 
     local TabsFrame = New("Frame", {
         BackgroundTransparency = 1,
@@ -1733,7 +1655,6 @@ function Library:ConfigManager(Window)
                 end
             end
         end
-        Data["WatermarkPosition"] = {WatermarkFrame.AbsolutePosition.X, WatermarkFrame.AbsolutePosition.Y}
         Data["WindowSize"] = {WindowFrame.AbsoluteSize.X, WindowFrame.AbsoluteSize.Y}
         writefile(`{ConfigFolder}/{Name}.json`, HttpService:JSONEncode(Data))
         Library:Notify(`saved config: {Name}`, "Success")
@@ -1753,7 +1674,6 @@ function Library:ConfigManager(Window)
                 elseif Option.SetValue then Option:SetValue(Value) end
             end
         end
-        WatermarkFrame.Position = UDim2.fromOffset(Decoded["WatermarkPosition"][1], Decoded["WatermarkPosition"][2])
         WindowFrame.Size = UDim2.fromOffset(Decoded["WindowSize"][1], Decoded["WindowSize"][2])
         Library:Notify(`Config '{Name}' loaded`, "Success")
     end
@@ -1807,7 +1727,6 @@ function Library:ConfigManager(Window)
     }
     WindowKeybind.Active = true
     UISection:Toggle("keep window inbounds", function(Value) Library.KeepInBounds = Value end, Library.KeepInBounds)
-    UISection:Toggle("watermark", function(Value) WatermarkFrame.Visible = Value end, true)
 
 	UISection:Dropdown({
 		Name = "show keybinds when",
