@@ -1,4 +1,3 @@
--- NewNight ArrayList Module (Extracted & Refactored)
 local ArrayList = {
     Entries = {},
     Config = {
@@ -22,7 +21,6 @@ UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
 UIListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Right
 UIListLayout.Padding = UDim.new(0, 2)
 
--- Function: Add an item to the UI list
 function ArrayList.add(name, color)
     if ArrayList.Entries[name] then return end
     
@@ -43,7 +41,6 @@ function ArrayList.add(name, color)
     return Entry
 end
 
--- Function: Remove an item from the UI list
 function ArrayList.Remove(name)
     if ArrayList.Entries[name] then
         ArrayList.Entries[name]:Destroy()
@@ -51,7 +48,6 @@ function ArrayList.Remove(name)
     end
 end
 
--- Function: Sort the list by text length (Classic NewNight/Vape style)
 function ArrayList.Sort()
     local sorted = {}
     for name, label in pairs(ArrayList.Entries) do
