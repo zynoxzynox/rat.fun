@@ -276,7 +276,16 @@ local WatermarkFrame = New("Frame", {
 }) ApplyStroke(WatermarkFrame)
 AddToRegistry(WatermarkFrame, {BackgroundColor3 = "BackgroundColor", BorderColor3 = "StrokeColor"})
 
--- Watermark logo removed
+local WatermarkIcon = New("ImageLabel", {
+    BackgroundTransparency = 1,
+    Position = UDim2.fromOffset(5, 5),
+    Size = UDim2.fromOffset(20, 20),
+    Image = Assets["rat.fun/assets/logo.png"] or "",
+    ImageColor3 = Library.AccentColor,
+    ZIndex = 7,
+    Parent = WatermarkFrame
+})
+AddToRegistry(WatermarkIcon, {ImageColor3 = "AccentColor"})
 
 local WatermarkTextFrame = New("Frame", {
     BackgroundColor3 = Library.BackgroundColor,
