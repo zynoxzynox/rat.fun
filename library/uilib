@@ -281,7 +281,6 @@ local WatermarkIcon = New("ImageLabel", {
     Position = UDim2.fromOffset(5, 5),
     Size = UDim2.fromOffset(20, 20),
     Image = Assets["rat.fun/assets/logo.png"] or "",
-    ImageColor3 = Library.AccentColor,
     ZIndex = 7,
     Parent = WatermarkFrame
 })
